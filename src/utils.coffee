@@ -1,4 +1,14 @@
 _ = require "lodash"
+
+computeColIndex = (colName)->
+  result = 0
+  multiplier = 1
+  for i in [colName.length - 1..0] by -1
+    value = (colName.charCodeAt(i) - "A".charCodeAt(0)) + 1
+    result = result + value * multiplier
+    multiplier = multiplier * 26
+  return result
+
 module.exports =
   colChar: (input)->
     input = input.toString(26)
@@ -8,6 +18,12 @@ module.exports =
       colIndex = String.fromCharCode(a + if a >= 48 and a <= 57 then 17 else -22) + colIndex
       input = if input.length > 1 then (parseInt(input.substr(0, input.length - 1), 26) - 1).toString(26) else ""
     return colIndex
+
+  cellDecode: (a1Notation)->
+    m = a1Notation.match(/^([A-Z]+)([\d]+)$/)
+    throw 'Invalid a1Notation' unless m && m.length == 3
+    col = computeColIndex m[1]
+    return {col: col, row: m[2]}
 
   escapeXML: escapeXML = (str)->
     String(str)

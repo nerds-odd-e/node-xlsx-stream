@@ -9,7 +9,7 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
 
 * Features
 
-        Multiple sheets, String, Number, Date, Duration, Cell Formats
+        Multiple sheets, String, Number, Date, Duration, Cell Formats, Frozen panes
 
 * Usage
 
@@ -37,7 +37,7 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         x = xlsx()
         x.pipe fs.createWriteStream("./out.xlsx")
 
-        sheet1 = x.sheet('first sheet')
+        sheet1 = x.sheet('first sheet', { frozenCell: "C2" })
         sheet1.write ["first", "sheet"]
         sheet1.end()
 

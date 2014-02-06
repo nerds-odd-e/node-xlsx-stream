@@ -58,7 +58,7 @@ module.exports = xlsxStream = (opts = {})->
     defaultRepeater.on 'end', proxy.finalize
 
   # Append a new worksheet to the workbook
-  proxy.sheet = (name)->
+  proxy.sheet = (name, sheetOpts={})->
     index = sheets.length+1
     sheet =
       index: index
@@ -66,6 +66,7 @@ module.exports = xlsxStream = (opts = {})->
       rel: "worksheets/sheet#{index}.xml"
       path: "xl/worksheets/sheet#{index}.xml"
       styles: styles
+      opts: sheetOpts
     sheets.push sheet
     sheetStream(zip, sheet, opts)
 
