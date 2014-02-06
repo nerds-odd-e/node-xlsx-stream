@@ -25,8 +25,8 @@ module.exports =
           <sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/>
           <sheetData>
       """
-    footer: xml """
-        </sheetData>
+    footer: (sheet)-> xml """
+        </sheetData>#{if sheet.comments.length then '\n<legacyDrawing r:id="rId1" />' else ''}
       </worksheet>
     """
 
@@ -38,15 +38,22 @@ module.exports =
         <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
           <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
           <Default Extension="xml" ContentType="application/xml"/>
+          <Default ContentType="image/jpeg" Extension="jpeg"/>
+          <Default ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing" Extension="vml"/>
           <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
           <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
           <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
           <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
           <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
       """
-      sheet: (sheet)-> """
+      sheet: (sheet)->
+        buf = """
           <Override PartName="/#{esc sheet.path}" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
-      """
+        """
+        buf += """
+          <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml" PartName="/xl/comments#{sheet.index}.xml"/>
+        """
+        return buf
       footer: xml """
         </Types>
       """
@@ -190,3 +197,108 @@ module.exports =
         <dcterms:modified xsi:type="dcterms:W3CDTF">#{today}</dcterms:modified>
       </cp:coreProperties>
       """
+
+  sheetRels: (sheet)-> xml """
+      <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        <Relationship Id="rId1" Target="../drawings/vmlDrawing#{sheet.index}.vml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"/>
+        <Relationship Id="rId2" Target="../comments#{sheet.index}.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"/>
+      </Relationships>
+    """
+
+  vmlDrawing: (sheet)->
+    header = xml """
+      <xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:mv="http://macVmlSchemaUri">
+        <o:shapelayout v:ext="edit">
+         <o:idmap v:ext="edit" data="1"/>
+        </o:shapelayout>
+        <v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202" path="m0,0l0,21600,21600,21600,21600,0xe">
+          <v:stroke joinstyle="miter"/>
+          <v:path gradientshapeok="t" o:connecttype="rect"/>
+        </v:shapetype>
+      """
+    shape = (a1Notation)->
+      decoded = utils.cellDecode a1Notation
+      rowNumber = decoded.row
+      colNumber = decoded.col
+      sheet.shapeCounter++;
+      unique_id = "_x#{sheet.index}_s#{sheet.shapeCounter}"
+      point_from_left = colNumber * 100 + 30 # wild guess
+      point_from_top = rowNumber * 20 + 5 # wild guess
+      xml """
+        <v:shape id="#{unique_id}" type="#_x0000_t202" style='position:absolute;margin-left:"#{point_from_left}"pt;margin-top:"#{point_from_top}"pt;width:104pt;height:64pt;z-index:#{sheet.shapeCounter};visibility:hidden;mso-wrap-style:tight' fillcolor="#fbf6d6" strokecolor="#edeaa1">
+          <v:fill color2="#fbfe82" angle="-180" type="gradient">
+           <o:fill v:ext="view" type="gradientUnscaled"/>
+          </v:fill>
+          <v:shadow on="t" obscured="t"/>
+          <v:path o:connecttype="none"/>
+          <v:textbox>
+           <div style='text-align:left'></div>
+          </v:textbox>
+          <x:ClientData ObjectType="Note">
+           <x:MoveWithCells/>
+           <x:SizeWithCells/>
+           <x:Anchor>
+            #{colNumber}, 15, #{rowNumber}, 2, #{colNumber+3}, 54, #{rowNumber+3}, 4</x:Anchor>
+           <x:AutoFill>False</x:AutoFill>
+           <x:Row>#{rowNumber-1}</x:Row>
+           <x:Column>#{colNumber-1}</x:Column>
+          </x:ClientData>
+         </v:shape>
+      """
+    shapes = ()->
+      buffer = ""
+      for comment in sheet.comments
+        buffer += shape(comment.ref)
+    footer = xml """
+      </xml>
+      """
+    return xml(header + shapes() + footer)
+
+  comments: (sheet)->
+    authors = ""
+    sheet.authors.push "" if sheet.authors.length == 0
+    authors += "<author>#{author}</author>" for author in sheet.authors
+    header = xml """
+      <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+      <authors>
+        #{authors}
+      </authors>
+      <commentList>
+    """
+    body = (sheet)->
+      generateOneLine = (line)->
+        """
+          <r>
+            <rPr>#{if line.b then '\n    <b/>' else ''}
+              <sz val="9"/>
+              <color indexed="81"/>
+              <rFont val="Calibri"/>
+              <family val="2"/>
+            </rPr>
+            <t xml:space="preserve">#{ if line.t then line.t else line }</t>
+          </r>
+        """
+      generateOneComment= (comment)->
+        authorId = if typeof comment.authorId == 'number' then comment.authorId else 0
+        lines = ""
+        for line in comment.lines
+          lines += generateOneLine line
+        """
+          <comment authorId="#{authorId}" ref="#{comment.ref}">
+            <text>#{lines}</text>
+          </comment>
+        """
+
+      all = ""
+      for comment in sheet.comments
+        all += generateOneComment comment
+
+      all
+
+    footer = """
+      </commentList>
+      </comments>
+    """
+    return header + '\n' + body(sheet) + '\n' + footer

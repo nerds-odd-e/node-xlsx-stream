@@ -9,7 +9,7 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
 
 * Features
 
-        Multiple sheets, String, Number, Date, Duration, Cell Formats, Frozen panes
+        Multiple sheets, String, Number, Date, Duration, Cell Formats, Frozen panes, Comments
 
 * Usage
 
@@ -27,6 +27,8 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         x.write ["Formula", {v: "ok", f: "CONCATENATE(A1,B2)"}]
         x.write ["Percentage Built-in format #9", { v: 0.5, nf: '0.00%' }]
         x.write ["Percentage Custom format", { v: 0.5, nf: '00.000%' }]
+        x.write ["A simple comment", {v: "cell with comment", c: 'very simple comment' }]
+        x.write ["A full comment", {v: "cell with comment", c: { author: 'Joe', lines: [ { t: "bold text\n", b: true }, "plain text" ] } }]
 
         x.end()
 
@@ -46,7 +48,3 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         sheet2.end()
 
         x.finalize()
-
-* Help Wanted
-
-        Comments

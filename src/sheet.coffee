@@ -15,14 +15,20 @@ module.exports = sheetStream = (zip, sheet, opts={})->
     nRow++
     buf = "<row r='#{nRow}'>"
     if opts.columns?
-      buf += utils.buildCell("#{colChar(i)}#{nRow}", row[col], sheet.styles) for col, i in opts.columns
+      for col, i in opts.columns
+        ref = "#{colChar(i)}#{nRow}"
+        utils.buildComment(ref, row[col], sheet.comments, sheet.authors)
+        buf += utils.buildCell(ref, row[col], sheet.styles)
     else
-      buf += utils.buildCell("#{colChar(i)}#{nRow}", val, sheet.styles) for val, i in row
+      for val, i in row
+        ref = "#{colChar(i)}#{nRow}"
+        utils.buildComment(ref, val, sheet.comments, sheet.authors)
+        buf += utils.buildCell(ref, val, sheet.styles)
     buf += '</row>'
     @queue buf
   onEnd = ->
     # フッタ部分を追加
-    @queue template.footer
+    @queue template.footer(sheet)
     @queue null
     converter = colChar = zip = null
 

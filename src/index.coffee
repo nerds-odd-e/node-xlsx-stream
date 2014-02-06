@@ -67,6 +67,9 @@ module.exports = xlsxStream = (opts = {})->
       path: "xl/worksheets/sheet#{index}.xml"
       styles: styles
       opts: sheetOpts
+      comments: []
+      authors: []
+      shapeCounter: 0
     sheets.push sheet
     sheetStream(zip, sheet, opts)
 
@@ -80,6 +83,13 @@ module.exports = xlsxStream = (opts = {})->
       zip.append buffer, {name, store: opts.store}
     for name, func of templates.semiStatics
       zip.append func(opts), {name, store: opts.store}
+
+    # files generated for each sheet
+    for sheet in sheets
+      if sheet.comments.length
+        zip.append templates.comments(sheet), { name: "xl/comments#{sheet.index}.xml", store: opts.store}
+        zip.append templates.vmlDrawing(sheet), { name: "xl/drawings/vmlDrawing#{sheet.index}.vml", store: opts.store}
+        zip.append templates.sheetRels(sheet), { name: "xl/worksheets/_rels/sheet#{sheet.index}.xml.rels", store: opts.store}
 
     # files modified by number of sheets
     for name, obj of templates.sheet_related

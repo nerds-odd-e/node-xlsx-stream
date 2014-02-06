@@ -23,7 +23,7 @@ module.exports =
     m = a1Notation.match(/^([A-Z]+)([\d]+)$/)
     throw 'Invalid a1Notation' unless m && m.length == 3
     col = computeColIndex m[1]
-    return {col: col, row: m[2]}
+    return {col: col, row: parseInt(m[2], 10)}
 
   escapeXML: escapeXML = (str)->
     String(str)
@@ -134,3 +134,16 @@ module.exports =
     r += v if v
     r += '</c>'
     return r
+
+  buildComment: (ref, val, comments, authors)->
+    return unless val && val.c?
+    comment = val.c
+    comment = { lines: [ comment ] } if typeof comment == 'string'
+    if comment.author
+      authorId = authors.indexOf comment.author
+      if authorId == -1
+        authorId = authors.length
+        authors.push comment.author
+      comment.authorId = authorId
+    comment.ref = ref
+    comments.push comment

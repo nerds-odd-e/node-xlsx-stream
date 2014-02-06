@@ -49,6 +49,8 @@ vows.describe('xlsx-stream').addBatch(
         x.write ["Percentage Custom format", { v: 0.5, nf: '00.000%' }]
         x.write ["Duration 36 hours format #46", {v: 1.5, t: 'n', nf: '[h]:mm:ss' }]
         x.write ["Formula", {v: "ok", f: "CONCATENATE(A1,B2)"}]
+        x.write ["A simple comment", {v: "cell with comment", c: 'very simple comment' }]
+        x.write ["A full comment", {v: "cell with comment", c: { author: 'Joe', lines: [ { t: "bold text\n", b: true }, "plain text" ] } }]
         x.end()
         return
       "Parse xlsx":
