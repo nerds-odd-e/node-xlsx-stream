@@ -34,9 +34,10 @@ vows.describe('xlsx-stream').addBatch(
     "create":
       topic: ->
         x = xlsx_stream()
-        x.on 'end', @callback
+        output = fs.createWriteStream(tmp('array.xlsx'))
+        output.on 'close', @callback
         x.on 'finalize', -> console.log "FINALIZE:", arguments
-        x.pipe fs.createWriteStream(tmp('array.xlsx'))
+        x.pipe output
         x.write ["String", "てすと", "&'\";<>", "&amp;"]
         x.write ["Integer", 1,2,-3]
         x.write ["Float", 1.5, 0.3, 0.123456789e+23]
@@ -63,9 +64,10 @@ vows.describe('xlsx-stream').addBatch(
     "create":
       topic: ->
         x = xlsx_stream()
-        x.on 'end', @callback
+        output = fs.createWriteStream(tmp('multi.xlsx'))
+        output.on 'close', @callback
         x.on 'finalize', -> console.log "FINALIZE:", arguments
-        x.pipe fs.createWriteStream(tmp('multi.xlsx'))
+        x.pipe output
 
         sheet1 = x.sheet("1st sheet")
         sheet1.write ["This", "is", "my", "first", "worksheet"]
