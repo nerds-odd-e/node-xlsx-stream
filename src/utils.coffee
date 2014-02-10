@@ -130,7 +130,7 @@ module.exports =
     r += ' t="' + t + '"' if t
     r += ' s="' + s + '"' if s
     r += '>'
-    r += '<f>' + f + '</f>' if f
+    r += '<f>' + escapeXML(f) + '</f>' if f
     r += v if v
     r += '</c>'
     return r
