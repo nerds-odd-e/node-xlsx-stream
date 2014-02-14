@@ -52,7 +52,7 @@ module.exports =
         """
         buf += """
           <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml" PartName="/xl/comments#{sheet.index}.xml"/>
-        """
+        """ if sheet.comments.length
         return buf
       footer: xml """
         </Types>
@@ -198,12 +198,14 @@ module.exports =
       </cp:coreProperties>
       """
 
-  sheetRels: (sheet)-> xml """
+  sheetRels: (sheet)->
+    relBuf = if sheet.comments.length then """
+      <Relationship Id="rId1" Target="../drawings/vmlDrawing#{sheet.index}.vml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"/>
+      <Relationship Id="rId2" Target="../comments#{sheet.index}.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"/>
+    """ else ""
+    xml """
       <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-        <Relationship Id="rId1" Target="../drawings/vmlDrawing#{sheet.index}.vml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"/>
-        <Relationship Id="rId2" Target="../comments#{sheet.index}.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"/>
-      </Relationships>
+      <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">#{relBuf}</Relationships>
     """
 
   vmlDrawing: (sheet)->
