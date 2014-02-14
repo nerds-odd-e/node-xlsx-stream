@@ -9,7 +9,7 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
 
 * Features
 
-        Multiple sheets, String, Number, Date, Duration, Cell Formats, Frozen panes, Comments
+        Multiple sheets, String, Number, Date, Duration, Cell Formats, Frozen panes, Comments, Custom properties
 
 * Usage
 
@@ -48,3 +48,9 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         sheet2.end()
 
         x.finalize()
+
+* Custom properties
+
+        # coffee-script
+
+        x = xlsx_stream({ core: { creator: 'Pony Foo' }, custom: [ name: 'url', value: 'http://localhost/doc/foo' ] })

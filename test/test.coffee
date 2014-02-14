@@ -65,7 +65,7 @@ vows.describe('xlsx-stream').addBatch(
   "Multiple sheets":
     "create":
       topic: ->
-        x = xlsx_stream()
+        x = xlsx_stream({ core: { creator: 'Pony Foo' }, custom: { url: 'http://localhost/doc/foo', aboolean: true, adate: new Date(), afloat: -3.14, aninteger: 42 } })
         output = fs.createWriteStream(tmp('multi.xlsx'))
         output.on 'close', @callback
         x.on 'finalize', -> console.log "FINALIZE:", arguments

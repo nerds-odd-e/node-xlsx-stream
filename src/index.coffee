@@ -82,7 +82,8 @@ module.exports = xlsxStream = (opts = {})->
     for name, buffer of templates.statics
       zip.append buffer, {name, store: opts.store}
     for name, func of templates.semiStatics
-      zip.append func(opts), {name, store: opts.store}
+      content = func(opts)
+      zip.append content, {name, store: opts.store} if content
 
     # files generated for each sheet
     for sheet in sheets
@@ -93,7 +94,7 @@ module.exports = xlsxStream = (opts = {})->
 
     # files modified by number of sheets
     for name, obj of templates.sheet_related
-      buffer =  obj.header
+      buffer =  obj.header(opts)
       buffer += obj.sheet(sheet) for sheet in sheets
       buffer += obj.footer
       zip.append buffer, {name, store: opts.store}
