@@ -71,7 +71,16 @@ vows.describe('xlsx-stream').addBatch(
         x.on 'finalize', -> console.log "FINALIZE:", arguments
         x.pipe output
 
-        sheet1 = x.sheet("1st sheet", { frozenCell: 'C5' })
+        sheet1 = x.sheet("1st sheet", {
+                                        frozenCell: 'C5',
+                                        hiddenColumns: [ "12", "15-18", "20-"],
+                                        columnsWidth:  {
+                                          '1' : 26, # ~2"
+                                          '2' : 30,
+                                          '5' : 10
+                                        }
+                                      })
+        # "{hidden:true  }, {}, {hidden:true  }"
         sheet1.write ["This", "is", "my", "first", "worksheet"]
         sheet1.end()
 

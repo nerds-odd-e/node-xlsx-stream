@@ -36,6 +36,6 @@ module.exports = sheetStream = (zip, sheet, opts={})->
   zip.append converter, name: sheet.path, store: opts.store
 
   # ヘッダ部分を追加
-  converter.queue template.header(sheet.opts.frozenCell)
+  converter.queue template.header(sheet.opts)
 
   return converter

@@ -147,3 +147,19 @@ module.exports =
       comment.authorId = authorId
     comment.ref = ref
     comments.push comment
+
+  rangePatternToMinMax: (rangePattern, max) ->
+    splitPattern = rangePattern.split "-"
+
+    if splitPattern.length != 1 && splitPattern.length != 2
+      throw new Error "Illegal range pattern : '#{rangePattern}'"
+
+    if splitPattern[1]
+      return splitPattern
+
+    if rangePattern[rangePattern.length - 1] == '-'
+      splitPattern[1] = max
+    else
+      splitPattern[1] = splitPattern[0]
+
+    return splitPattern
