@@ -6,8 +6,10 @@ esc = utils.escapeXML
 module.exports =
   # worksheet
   worksheet:
-    header: (frozenCell)->
-      if frozenCell
+    header: (opts)->
+      options = opts || {}
+      if options.frozenCell
+        frozenCell = options.frozenCell
         decoded = utils.cellDecode frozenCell
         sheetView = """
           <sheetView workbookViewId="0">
@@ -16,6 +18,18 @@ module.exports =
         """
       else
         sheetView = '<sheetView workbookViewId="0"/>'
+
+      colsTag = ""
+      if options.hiddenColumns
+        for rangePattern, i in options.hiddenColumns
+          # 1025 is the maximum column count according to the spec
+          minMax = utils.rangePatternToMinMax(rangePattern, 1025)
+          colsTag += """<col hidden="true" min="#{minMax[0]}" max="#{minMax[1]}" width="0" />"""
+
+      if options.columnsWidth
+        for colIdx, width of options.columnsWidth
+          colsTag += """<col min="#{colIdx}" max="#{colIdx}" width="#{width}" />""" # 1" = 12.959
+
       xml """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
@@ -23,6 +37,9 @@ module.exports =
             #{sheetView}
           </sheetViews>
           <sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/>
+          <cols>
+            #{colsTag}
+          </cols>
           <sheetData>
       """
     footer: (sheet)-> xml """
