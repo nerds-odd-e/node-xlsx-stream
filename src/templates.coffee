@@ -30,6 +30,8 @@ module.exports =
         for colIdx, width of options.columnsWidth
           colsTag += """<col min="#{colIdx}" max="#{colIdx}" width="#{width}" />""" # 1" = 12.959
 
+      cols = if colsTag then "  <cols>\n    #{colsTag}\n  </cols>" else ""
+
       xml """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
@@ -37,9 +39,7 @@ module.exports =
             #{sheetView}
           </sheetViews>
           <sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/>
-          <cols>
-            #{colsTag}
-          </cols>
+            #{cols}
           <sheetData>
       """
     footer: (sheet)-> xml """
