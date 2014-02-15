@@ -258,7 +258,7 @@ module.exports =
           value = value.toISOString()
         else if value == null
           type = 'null'
-        else
+        else if value != undefined
           type = 'lpwstr'
           value = value.toString()
         """
