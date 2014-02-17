@@ -100,4 +100,18 @@ vows.describe('xlsx-stream').addBatch(
           console.log arguments # Seems like node-xlsx does not support Inline String.
           # assert.ok()
 
+  "Empty Spreadsheet":
+    "create":
+      topic: ->
+        x = xlsx_stream()
+        output = fs.createWriteStream(tmp('empty.xlsx'))
+        output.on 'close', @callback
+        x.pipe output
+        x.end()
+        return
+
+      "log": (rows)->
+        console.log arguments # Seems like node-xlsx does not support Inline String.
+        #assert.ok()
+
 ).export(module, error: false)

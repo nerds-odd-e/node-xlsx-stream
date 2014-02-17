@@ -9,6 +9,17 @@ computeColIndex = (colName)->
     multiplier = multiplier * 26
   return result
 
+msPerDay = 8.64e7
+zeroLocal = new Date(1899,11,30); # dont utc, it displays the wrong date in excel
+toOADate = (d)->
+  v = (d - zeroLocal)/msPerDay
+  # Deal with dates prior to 1899-12-30 00:00:00
+  if v < 0
+    dec = v - Math.floor(v);
+    if dec
+      v = Math.floor(v) - dec;
+  return v;
+
 module.exports =
   colChar: (input)->
     input = input.toString(26)
@@ -35,7 +46,7 @@ module.exports =
   compress: compress = (str)->
     String(str).replace(/\n\s*/g, '')
 
-  buildCell: (ref, val, styles)->
+  buildCell: (ref, val, styles, opts)->
 
     getStyle = (nf)->
       return unless nf
@@ -115,9 +126,13 @@ module.exports =
       v = '<v>' + v + '</v>'
       t = 'n' if val.nf and not t
     else if _.isDate(v)
-      t = 'd'
+      if opts.ddates
+        t = 'd'
+        v = '<v>' + v.toISOString() + '</v>'
+      else
+        t = 'n'
+        v = '<v>' + toOADate(v) + '</v>'
       s = '2' unless s?
-      v = '<v>' + v.toISOString() + '</v>'
     else if _.isBoolean(v)
       t = 'b'
       v = '<v>' + (if v is true then '1' else '0') + '</v>'

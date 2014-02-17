@@ -57,6 +57,11 @@ module.exports = xlsxStream = (opts = {})->
     defaultRepeater.pipe(defaultSheet)
     defaultRepeater.on 'end', proxy.finalize
 
+  defaultRepeater.once 'end', ()->
+    if !defaultSheet
+      proxy.sheet('Sheet1').end()
+      proxy.finalize()
+
   # Append a new worksheet to the workbook
   proxy.sheet = (name, sheetOpts={})->
     index = sheets.length+1
@@ -84,6 +89,10 @@ module.exports = xlsxStream = (opts = {})->
     for name, func of templates.semiStatics
       content = func(opts)
       zip.append content, {name, store: opts.store} if content
+
+    # Deal with no sheets created
+    if sheets.length == 0
+      proxy.sheet('Sheet1').end()
 
     # files generated for each sheet
     for sheet in sheets

@@ -38,14 +38,15 @@ module.exports =
           <sheetViews>
             #{sheetView}
           </sheetViews>
-          <sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/>
+          <sheetFormatPr customHeight="1" defaultColWidth="14.43" defaultRowHeight="15"/>
             #{cols}
-          <sheetData>
       """
-    footer: (sheet)-> xml """
-        </sheetData>#{if sheet.comments.length then '\n<legacyDrawing r:id="rId1" />' else ''}
-      </worksheet>
-    """
+    footer: (sheet, nRow)->
+      buf = ""
+      buf += if nRow > 0 then '</sheetData>' else '<sheetData/>'
+      buf += '<legacyDrawing r:id="rId1" />' if sheet.comments.length
+      buf += '</worksheet>'
+      xml buf
 
   # Static files
   sheet_related:
