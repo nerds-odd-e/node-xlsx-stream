@@ -28,7 +28,7 @@ module.exports =
 
       if options.columnsWidth
         for colIdx, width of options.columnsWidth
-          colsTag += """<col min="#{colIdx}" max="#{colIdx}" width="#{width}" />""" # 1" = 12.959
+          colsTag += """<col min="#{colIdx}" max="#{colIdx}" width="#{width}" customWidth="1" />""" # 1" = 12.959
 
       cols = if colsTag then "  <cols>\n    #{colsTag}\n  </cols>" else ""
 
