@@ -16,10 +16,10 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         # coffee-script
         xlsx = require "xlsx-stream"
         fs = require "fs"
-        
+
         x = xlsx()
         x.pipe fs.createWriteStream("./out.xlsx")
-        
+
         x.write ["foo", "bar", "buz"]
         x.write [1,2,3]
         x.write ["Date", new Date]
@@ -33,9 +33,9 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         x.end()
 
 * Multiple sheets support
-        
+
         # coffee-script
-        
+
         x = xlsx()
         x.pipe fs.createWriteStream("./out.xlsx")
 
@@ -46,6 +46,10 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
         sheet2 = x.sheet('another')
         sheet2.write ["second", "sheet"]
         sheet2.end()
+
+        sheet3 = x.sheet("Hidden Sheet", { hideSheet: true});
+        sheet3.write ["This", "sheet", "is", "hidden"]
+        sheet3.end()
 
         x.finalize()
 

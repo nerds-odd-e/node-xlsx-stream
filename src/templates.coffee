@@ -110,7 +110,7 @@ module.exports =
             <sheets>
         """
       sheet: (sheet)-> xml """
-            <sheet name="#{esc sheet.name}" sheetId="#{esc sheet.index}" r:id="rSheet#{esc sheet.index}"/>
+            <sheet name="#{esc sheet.name}" sheetId="#{esc sheet.index}" state="#{if (sheet.opts && sheet.opts.hideSheet) then "hidden" else "visible"}" r:id="rSheet#{esc sheet.index}"/>
       """
       footer: xml """
           </sheets>

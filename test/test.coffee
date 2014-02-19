@@ -88,6 +88,10 @@ vows.describe('xlsx-stream').addBatch(
         sheet2.write ["これが", "２枚目の", "ワークシート", "です"]
         sheet2.end()
 
+        sheet3 = x.sheet("Hidden Sheet", { hideSheet: true});
+        sheet3.write ["This", "sheet", "is", "hidden"]
+        sheet3.end()
+
         x.finalize()
         return
 
