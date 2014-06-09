@@ -32,6 +32,20 @@ Creates SpreadsheetML (.xlsx) files in sequence with streaming interface.
 
         x.end()
 
+        
+        # JavaScript
+        var xlsx        = require('xlsx');
+        var xlsx_stream = require('xlsx-stream')();
+        var fs          = require('fs');
+
+        xlsx_stream.pipe(fs.createWriteStream("out.xlsx"));
+
+        xlsx_stream.write(["foo", "bar", "buz"]);
+        xlsx_stream.write([1,2,3]);
+
+        xlsx_stream.end();
+
+
 * Multiple sheets support
 
         # coffee-script
